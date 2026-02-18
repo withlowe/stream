@@ -7,42 +7,38 @@
   <meta name="description" content="A personal stream." />
   <link rel="alternate" type="application/rss+xml" title="Stream" href="/feed.xml" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;1,300&family=IBM+Plex+Serif:ital,wght@0,400;1,400&display=swap" rel="stylesheet" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #f7f5f2;
+      --bg: #ffffff;
       --surface: #ffffff;
-      --border: #e5e2dc;
+      --border: transparent;
       --text: #1a1916;
       --muted: #9a9690;
       --accent: #1a1916;
       --max: 520px;
-      --mono: 'IBM Plex Mono', monospace;
-      --serif: 'IBM Plex Serif', Georgia, serif;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
     }
 
     @media (prefers-color-scheme: dark) {
       :root {
         --bg: #0e0e0e;
         --surface: #161616;
-        --border: #242424;
+        --border: transparent;
         --text: #e8e6e1;
         --muted: #555550;
         --accent: #e8e6e1;
       }
     }
 
-    html { font-size: 15px; }
+    html { font-size: 18px; }
 
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: var(--serif);
+      font-family: var(--sans);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
     }
@@ -53,7 +49,6 @@
       top: 0;
       z-index: 100;
       background: var(--bg);
-      border-bottom: 1px solid var(--border);
     }
 
     .header-inner {
@@ -67,11 +62,10 @@
     }
 
     .site-name {
-      font-family: var(--mono);
-      font-size: 0.8rem;
-      font-weight: 400;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
+      font-family: var(--sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
       color: var(--text);
       text-decoration: none;
     }
@@ -83,20 +77,14 @@
     }
 
     .rss-link {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      font-weight: 300;
+      font-family: var(--sans);
+      font-size: 0.75rem;
+      font-weight: 400;
       color: var(--muted);
       text-decoration: none;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
       transition: color 0.15s;
     }
     .rss-link:hover { color: var(--text); }
-    .rss-icon { width: 12px; height: 12px; fill: currentColor; flex-shrink: 0; }
 
     /* ── Feed ── */
     main {
@@ -109,8 +97,7 @@
 
     /* ── Post ── */
     .post {
-      border-bottom: 1px solid var(--border);
-      padding: 24px 0;
+      padding: 28px 0;
       opacity: 0;
       transform: translateY(8px);
       transition: opacity 0.35s ease, transform 0.35s ease;
@@ -119,18 +106,17 @@
 
     .post-time {
       display: block;
-      font-family: var(--mono);
-      font-size: 0.62rem;
-      font-weight: 300;
+      font-family: var(--sans);
+      font-size: 0.8rem;
+      font-weight: 400;
       color: var(--muted);
-      letter-spacing: 0.06em;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .post-body {
-      font-family: var(--serif);
-      font-size: 1rem;
-      line-height: 1.75;
+      font-family: var(--sans);
+      font-size: 1.1rem;
+      line-height: 1.65;
       color: var(--text);
     }
 
@@ -179,11 +165,9 @@
     /* ── States ── */
     .feed-empty {
       padding: 80px 0;
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      font-weight: 300;
+      font-family: var(--sans);
+      font-size: 0.85rem;
       color: var(--muted);
-      letter-spacing: 0.06em;
       text-align: center;
       display: none;
     }
@@ -216,12 +200,9 @@
     .end-line {
       text-align: center;
       padding: 40px 0 10px;
-      font-family: var(--mono);
-      font-size: 0.6rem;
-      font-weight: 300;
+      font-family: var(--sans);
+      font-size: 0.7rem;
       color: var(--border);
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
       display: none;
     }
 
@@ -237,10 +218,7 @@
   <div class="header-inner">
     <a class="site-name" href="/">Stream</a>
     <div class="header-right">
-      <a class="rss-link" href="/feed.xml">
-        <svg class="rss-icon" viewBox="0 0 24 24"><path d="M6.18 15.64a2.18 2.18 0 0 1 2.18 2.18C8.36 19.01 7.38 20 6.18 20C4.98 20 4 19.01 4 17.82a2.18 2.18 0 0 1 2.18-2.18M4 4.44A15.56 15.56 0 0 1 19.56 20h-2.83A12.73 12.73 0 0 0 4 7.27V4.44m0 5.66a9.9 9.9 0 0 1 9.9 9.9h-2.83A7.07 7.07 0 0 0 4 12.93V10.1z"/></svg>
-        RSS
-      </a>
+      <a class="rss-link" href="/feed.xml">Subscribe</a>
 
     </div>
   </div>
