@@ -5,15 +5,7 @@
     <description>Stream</description>
     <link>https://stream-ashy-tau.vercel.app</link>
     <atom:link href="https://stream-ashy-tau.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Wed, 18 Feb 2026 22:30:14 +0000</lastBuildDate>
-        <item>
-          <title>2026-02-18 22:13</title>
-          <description>Hugo</description>
-          <pubDate>Wed, 18 Feb 2026 22:13:05 +0000</pubDate>
-          <link>https://stream-ashy-tau.vercel.app</link>
-          <guid>1771452774</guid>
-          <enclosure url="https://stream-ashy-tau.vercel.app/assets/images/1771452774.jpg" type="image/jpeg" length="0"/>
-        </item>
+    <lastBuildDate>Wed, 18 Feb 2026 22:54:35 +0000</lastBuildDate>
         <item>
           <title>Flower Power</title>
           <description></description>
