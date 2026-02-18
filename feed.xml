@@ -5,21 +5,6 @@
     <description>Stream</description>
     <link>https://stream-ashy-tau.vercel.app</link>
     <atom:link href="https://stream-ashy-tau.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Wed, 18 Feb 2026 23:07:58 +0000</lastBuildDate>
-        <item>
-          <title>2026-02-18 20:36</title>
-          <description>This is a post</description>
-          <pubDate>Wed, 18 Feb 2026 20:36:26 +0000</pubDate>
-          <link>https://stream-ashy-tau.vercel.app</link>
-          <guid>1771446970</guid>
-          <enclosure url="https://stream-ashy-tau.vercel.app/assets/images/1771446970.jpg" type="image/jpeg" length="0"/>
-        </item>
-        <item>
-          <title>2026-02-18 20:27</title>
-          <description>Tip top</description>
-          <pubDate>Wed, 18 Feb 2026 20:27:59 +0000</pubDate>
-          <link>https://stream-ashy-tau.vercel.app</link>
-          <guid>1771446478</guid>
-        </item>
+    <lastBuildDate>Wed, 18 Feb 2026 23:11:36 +0000</lastBuildDate>
   </channel>
 </rss>
