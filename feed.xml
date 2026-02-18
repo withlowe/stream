@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Stream</title>
+    <description>Stream</description>
+    <link>https://withlowe.github.io/stream</link>
+    <atom:link href="https://withlowe.github.io/stream/feed.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>Wed, 18 Feb 2026 20:27:59 +0000</lastBuildDate>
+        <item>
+          <title>2026-02-18 20:27</title>
+          <description>Tip top</description>
+          <pubDate>Wed, 18 Feb 2026 20:27:59 +0000</pubDate>
+          <link>https://withlowe.github.io/stream</link>
+          <guid>1771446478</guid>
+        </item>
+  </channel>
+</rss>
