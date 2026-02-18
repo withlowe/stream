@@ -5,17 +5,24 @@
     <description>Stream</description>
     <link>https://withlowe.github.io/stream</link>
     <atom:link href="https://withlowe.github.io/stream/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Wed, 18 Feb 2026 20:36:27 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Feb 2026 20:41:31 +0000</lastBuildDate>
+        <item>
+          <title>2026-02-18 20:41</title>
+          <description>Heiyoooo</description>
+          <pubDate>Wed, 18 Feb 2026 20:41:30 +0000</pubDate>
+          <link>https://withlowe.github.io/stream</link>
+          <guid>1771447290</guid>
+        </item>
         <item>
           <title>2026-02-18 20:36</title>
-          <description>This is a post</description>
+          <description>This is a post &lt;img src=&quot;https://withlowe.github.io/stream/assets/images/1771446970.jpg&quot; alt=&quot;&quot;/&gt;</description>
           <pubDate>Wed, 18 Feb 2026 20:36:26 +0000</pubDate>
           <link>https://withlowe.github.io/stream</link>
           <guid>1771446970</guid>
         </item>
         <item>
           <title>2026-02-18 20:29</title>
-          <description>[image]</description>
+          <description>&lt;img src=&quot;https://withlowe.github.io/stream/assets/images/1771446530.jpg&quot; alt=&quot;&quot;/&gt;</description>
           <pubDate>Wed, 18 Feb 2026 20:29:04 +0000</pubDate>
           <link>https://withlowe.github.io/stream</link>
           <guid>1771446530</guid>
