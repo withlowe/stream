@@ -113,6 +113,15 @@
       margin-bottom: 10px;
     }
 
+    .post-title {
+      font-family: var(--sans);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
     .post-body {
       font-family: var(--sans);
       font-size: 1rem;
@@ -259,14 +268,15 @@
     const imageOnly = !post.body && post.image;
     el.className = 'post' + (imageOnly ? ' image-only' : '');
 
-    const timeEl = `<time class="post-time" datetime="${post.date}">${formatDate(post.date)}</time>`;
-    const bodyEl = post.body ? `<div class="post-body">${escapeHTML(post.body)}</div>` : '';
-    const imgEl  = post.image ? `
+    const timeEl  = `<time class="post-time" datetime="${post.date}">${formatDate(post.date)}</time>`;
+    const titleEl = post.title ? `<div class="post-title">${escapeHTML(post.title)}</div>` : '';
+    const bodyEl  = post.body ? `<div class="post-body">${escapeHTML(post.body)}</div>` : '';
+    const imgEl   = post.image ? `
       <div class="post-image loading">
         <img data-src="${post.image}" alt="" />
       </div>` : '';
 
-    el.innerHTML = timeEl + bodyEl + imgEl;
+    el.innerHTML = timeEl + titleEl + bodyEl + imgEl;
 
     // lazy load image
     const img = el.querySelector('img[data-src]');
