@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
     <title>Stream</title>
     <description>Stream</description>
     <link>https://withlowe.github.io/stream</link>
     <atom:link href="https://withlowe.github.io/stream/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Wed, 18 Feb 2026 20:47:41 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Feb 2026 21:12:51 +0000</lastBuildDate>
+        <item>
+          <title>Wohoooooooo</title>
+          <description>In this stream we're going to build a website in Swift, using a free, open-source framework I produced called Ignite. It's designed to be familiar for SwiftUI developers, so hopefully you can see the appeal!</description>
+          <pubDate>Wed, 18 Feb 2026 21:12:50 +0000</pubDate>
+          <link>https://withlowe.github.io/stream</link>
+          <guid>1771449170</guid>
+        </item>
         <item>
           <title>2026-02-18 20:47</title>
           <description>Oat is an ultra-lightweight HTML + CSS, semantic UI component library with zero dependencies. No framework, build, or dev complexity. Just include the tiny CSS and JS files and you are good to go building decent looking web applications with most commonly needed components and elements.</description>
@@ -22,17 +29,19 @@
         </item>
         <item>
           <title>2026-02-18 20:36</title>
-          <description>This is a post &lt;img src=&quot;https://withlowe.github.io/stream/assets/images/1771446970.jpg&quot; alt=&quot;&quot;/&gt;</description>
+          <description>This is a post</description>
           <pubDate>Wed, 18 Feb 2026 20:36:26 +0000</pubDate>
           <link>https://withlowe.github.io/stream</link>
           <guid>1771446970</guid>
+          <enclosure url="https://withlowe.github.io/stream/assets/images/1771446970.jpg" type="image/jpeg" length="0"/>
         </item>
         <item>
           <title>2026-02-18 20:29</title>
-          <description>&lt;img src=&quot;https://withlowe.github.io/stream/assets/images/1771446530.jpg&quot; alt=&quot;&quot;/&gt;</description>
+          <description></description>
           <pubDate>Wed, 18 Feb 2026 20:29:04 +0000</pubDate>
           <link>https://withlowe.github.io/stream</link>
           <guid>1771446530</guid>
+          <enclosure url="https://withlowe.github.io/stream/assets/images/1771446530.jpg" type="image/jpeg" length="0"/>
         </item>
         <item>
           <title>2026-02-18 20:27</title>
