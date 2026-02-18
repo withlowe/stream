@@ -5,7 +5,16 @@
     <description>Stream</description>
     <link>https://stream-ashy-tau.vercel.app</link>
     <atom:link href="https://stream-ashy-tau.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Wed, 18 Feb 2026 21:34:45 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Feb 2026 21:41:29 +0000</lastBuildDate>
+        <item>
+          <title>Hmmmm what a thing</title>
+          <description>We’ve always approached product design this way. We look at our current tools and ask ourselves why it’s done the way it is. Why do bookmarking tools have social features? Why do we use folders? Dropdowns? Are these outdated UI patterns still useful or are they just clutter? What if we do it better? Or just different?
+
+With mymind we ultimately asked ourselves, why not? Why not find a different way to save what we care about? Why not remove all the other stuff that just gets in the way? Forget how it’s usually done. Why not make it better?</description>
+          <pubDate>Wed, 18 Feb 2026 21:41:28 +0000</pubDate>
+          <link>https://stream-ashy-tau.vercel.app</link>
+          <guid>1771450887</guid>
+        </item>
         <item>
           <title>This is an example of publishing a long article.</title>
           <description>ast November, Matthew Whitaker, the U.S. ambassador to NATO, startled a gathering of European officials at the Berlin Security Conference by remarking that he looked forward to the day when Germany would tell the United States, “We’re ready to take over the supreme allied commander position.” Despite Whitaker’s acknowledgment that such a moment was not imminent, his comments nonetheless shocked the audience of seasoned security officials who, like much of Washington, have long regarded NATO’s top military post as an American prerogative.
