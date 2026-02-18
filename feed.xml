@@ -5,7 +5,15 @@
     <description>Stream</description>
     <link>https://stream-ashy-tau.vercel.app</link>
     <atom:link href="https://stream-ashy-tau.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Wed, 18 Feb 2026 22:02:18 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 18 Feb 2026 22:03:20 +0000</lastBuildDate>
+        <item>
+          <title>Flower Power</title>
+          <description></description>
+          <pubDate>Wed, 18 Feb 2026 22:03:19 +0000</pubDate>
+          <link>https://stream-ashy-tau.vercel.app</link>
+          <guid>1771452182</guid>
+          <enclosure url="https://stream-ashy-tau.vercel.app/assets/images/1771452182.jpg" type="image/jpeg" length="0"/>
+        </item>
         <item>
           <title>Hmmmm what a thing</title>
           <description>We’ve always approached product design this way. We look at our current tools and ask ourselves why it’s done the way it is. Why do bookmarking tools have social features? Why do we use folders? Dropdowns? Are these outdated UI patterns still useful or are they just clutter? What if we do it better? Or just different?
