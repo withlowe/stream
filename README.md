@@ -4,7 +4,7 @@ A plain HTML/JSON static site. No build tools. Publish from the iOS app, deploys
 
 ## One-click deploy
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/withlowe/stream-site](https://github.com/withlowe/stream.git)](https://github.com/withlowe/stream.git))
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/withlowe/stream)
 
 After clicking:
 1. Log in with GitHub
