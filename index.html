@@ -15,15 +15,26 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0e0e0e;
-      --surface: #161616;
-      --border: #242424;
-      --text: #e8e6e1;
-      --muted: #555550;
-      --accent: #e8e6e1;
+      --bg: #f7f5f2;
+      --surface: #ffffff;
+      --border: #e5e2dc;
+      --text: #1a1916;
+      --muted: #9a9690;
+      --accent: #1a1916;
       --max: 520px;
       --mono: 'IBM Plex Mono', monospace;
       --serif: 'IBM Plex Serif', Georgia, serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0e0e0e;
+        --surface: #161616;
+        --border: #242424;
+        --text: #e8e6e1;
+        --muted: #555550;
+        --accent: #e8e6e1;
+      }
     }
 
     html { font-size: 15px; }
@@ -153,7 +164,7 @@
 
     /* shimmer */
     .post-image.loading::before {
-      background: linear-gradient(90deg, var(--surface) 25%, #1e1e1e 50%, var(--surface) 75%);
+      background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
       background-size: 200% 100%;
       animation: shimmer 1.4s infinite;
     }
