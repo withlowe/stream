@@ -1,15 +1,9 @@
 [
   {
-    "id" : "1771452182",
-    "date" : "2026-02-18T22:03:19Z",
-    "image" : "assets\/images\/1771452182.jpg",
-    "title" : "Flower Power"
-  },
-  {
     "date" : "2026-02-18T21:41:28Z",
-    "title" : "Hmmmm what a thing",
+    "id" : "1771450887",
     "body" : "We’ve always approached product design this way. We look at our current tools and ask ourselves why it’s done the way it is. Why do bookmarking tools have social features? Why do we use folders? Dropdowns? Are these outdated UI patterns still useful or are they just clutter? What if we do it better? Or just different?\n\nWith mymind we ultimately asked ourselves, why not? Why not find a different way to save what we care about? Why not remove all the other stuff that just gets in the way? Forget how it’s usually done. Why not make it better?",
-    "id" : "1771450887"
+    "title" : "Hmmmm what a thing"
   },
   {
     "date" : "2026-02-18T20:47:40Z",
@@ -17,24 +11,24 @@
     "id" : "1771447660"
   },
   {
-    "body" : "Heiyoooo",
+    "id" : "1771447290",
     "date" : "2026-02-18T20:41:30Z",
-    "id" : "1771447290"
+    "body" : "Heiyoooo"
   },
   {
     "id" : "1771446970",
+    "body" : "This is a post",
     "date" : "2026-02-18T20:36:26Z",
-    "image" : "assets\/images\/1771446970.jpg",
-    "body" : "This is a post"
+    "image" : "assets\/images\/1771446970.jpg"
   },
   {
-    "date" : "2026-02-18T20:29:04Z",
     "id" : "1771446530",
-    "image" : "assets\/images\/1771446530.jpg"
+    "image" : "assets\/images\/1771446530.jpg",
+    "date" : "2026-02-18T20:29:04Z"
   },
   {
-    "body" : "Tip top",
     "id" : "1771446478",
-    "date" : "2026-02-18T20:27:59Z"
+    "date" : "2026-02-18T20:27:59Z",
+    "body" : "Tip top"
   }
 ]
