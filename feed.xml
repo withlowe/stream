@@ -5,10 +5,11 @@
     <description>Stream Feed</description>
     <link>https://stream-wlteam.vercel.app</link>
     <atom:link href="https://stream-wlteam.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Thu, 19 Feb 2026 08:09:21 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 19 Feb 2026 08:13:49 +0000</lastBuildDate>
         <item>
           <title>Hello World</title>
-          <description>Where a world of adventure awaits.</description>
+          <description><![CDATA[<p>Where a world of adventure awaits.</p>
+<img src="https://stream-wlteam.vercel.app/assets/images/1771488539.jpg" style="max-width:100%;height:auto;" />]]></description>
           <pubDate>Thu, 19 Feb 2026 08:09:20 +0000</pubDate>
           <link>https://stream-wlteam.vercel.app</link>
           <guid>1771488539</guid>
