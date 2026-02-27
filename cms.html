@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stream CMS</title>
+<style>
+/* ── Config ── edit these to set your credentials */
+/* Credentials are set in the JS below */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: #222222;
+  --text: #e8e6e1;
+  --muted: #555550;
+  --accent: #e8e6e1;
+  --blue: #4a90e2;
+  --red: #e05555;
+  --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --radius: 10px;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* ── Screens ── */
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; }
+
+/* ── Login ── */
+#login-screen {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 360px;
+}
+
+.login-logo {
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.login-logo-mark {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 16px;
+}
+
+.login-logo-mark span {
+  display: block;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--text);
+}
+.login-logo-mark span:nth-child(1) { width: 32px; }
+.login-logo-mark span:nth-child(2) { width: 24px; }
+.login-logo-mark span:nth-child(3) { width: 16px; }
+
+.login-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.login-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.field { margin-bottom: 12px; }
+
+.field label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.field input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.field input:focus { border-color: var(--blue); }
+
+.login-error {
+  color: var(--red);
+  font-size: 0.8rem;
+  margin-bottom: 12px;
+  display: none;
+}
+.login-error.show { display: block; }
+
+/* ── App shell ── */
+#app-screen {
+  flex-direction: column;
+}
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.topbar-logo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.topbar-logo span {
+  display: block;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--text);
+}
+.topbar-logo span:nth-child(1) { width: 18px; }
+.topbar-logo span:nth-child(2) { width: 14px; }
+.topbar-logo span:nth-child(3) { width: 9px; }
+
+.topbar-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.topbar-right { display: flex; gap: 8px; }
+
+.nav-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 3px;
+}
+
+.nav-tab {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 6px;
+  transition: all 0.15s;
+}
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 6px;
+  border-radius: 6px;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+}
+.icon-btn:hover { color: var(--text); }
+
+/* ── Content ── */
+.content {
+  flex: 1;
+  max-width: 640px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 20px;
+}
+
+/* ── Panels ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── Compose ── */
+.compose-section {
+  margin-bottom: 20px;
+}
+
+.compose-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.compose-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.95rem;
+  padding: 12px 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.compose-input:focus { border-color: var(--blue); }
+
+textarea.compose-input {
+  resize: vertical;
+  min-height: 160px;
+  line-height: 1.6;
+}
+
+/* ── Image upload ── */
+.image-drop {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+  position: relative;
+}
+.image-drop:hover, .image-drop.dragover {
+  border-color: var(--blue);
+  background: rgba(74,144,226,0.05);
+}
+.image-drop input[type=file] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.image-drop-text {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.image-drop-text strong { color: var(--text); }
+
+.image-preview {
+  margin-top: 12px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  position: relative;
+  display: none;
+}
+.image-preview img {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+.image-preview-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.6);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Buttons ── */
+.btn {
+  background: var(--text);
+  border: none;
+  border-radius: var(--radius);
+  color: var(--bg);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 12px 24px;
+  transition: opacity 0.15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-danger {
+  background: var(--red);
+  color: white;
+}
+.btn-sm {
+  font-size: 0.78rem;
+  padding: 7px 14px;
+}
+
+.status-msg {
+  font-size: 0.82rem;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-top: 12px;
+  display: none;
+}
+.status-msg.show { display: block; }
+.status-msg.success { background: rgba(80,200,100,0.1); color: #5cc870; border: 1px solid rgba(80,200,100,0.2); }
+.status-msg.error   { background: rgba(224,85,85,0.1);  color: var(--red); border: 1px solid rgba(224,85,85,0.2); }
+.status-msg.info    { background: rgba(74,144,226,0.1); color: var(--blue); border: 1px solid rgba(74,144,226,0.2); }
+
+/* ── Posts list ── */
+.posts-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.posts-count {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.post-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  transition: border-color 0.15s;
+}
+.post-item:hover { border-color: #333; }
+.post-item.selected { border-color: var(--blue); background: rgba(74,144,226,0.05); }
+
+.post-check {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 5px;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.1s;
+}
+.post-item.selected .post-check {
+  background: var(--blue);
+  border-color: var(--blue);
+}
+.post-check-tick {
+  display: none;
+  color: white;
+  font-size: 11px;
+}
+.post-item.selected .post-check-tick { display: block; }
+
+.post-body-text {
+  flex: 1;
+  min-width: 0;
+}
+.post-item-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.post-item-body {
+  font-size: 0.82rem;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.post-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.post-item-date {
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.post-item-img-badge {
+  font-size: 0.68rem;
+  color: var(--blue);
+  background: rgba(74,144,226,0.1);
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.post-thumb {
+  width: 56px;
+  height: 56px;
+  border-radius: 7px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.delete-selected-bar {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  display: none;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  z-index: 200;
+  white-space: nowrap;
+}
+.delete-selected-bar.show { display: flex; }
+.delete-selected-bar span { font-size: 0.85rem; color: var(--muted); }
+
+/* ── Settings ── */
+.settings-section {
+  margin-bottom: 28px;
+}
+.settings-section-title {
+  font-size: 0.72rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-row {
+  margin-bottom: 14px;
+}
+.settings-row label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.settings-row input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.settings-row input:focus { border-color: var(--blue); }
+.settings-footer { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.spinner {
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.empty-state {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 500px) {
+  .topbar { padding: 0 14px; }
+  .content { padding: 20px 14px; }
+  .nav-tab { padding: 5px 9px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN ── -->
+<div id="login-screen" class="screen active">
+  <div class="login-box">
+    <div class="login-logo">
+      <div class="login-logo-mark">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="login-title">Stream CMS</div>
+      <div class="login-subtitle">Sign in to publish</div>
+    </div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="login-user" autocomplete="username" autocapitalize="none"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="login-pass" autocomplete="current-password"/>
+    </div>
+    <div class="login-error" id="login-error">Incorrect username or password.</div>
+    <button class="btn" style="width:100%" onclick="doLogin()">Sign in</button>
+  </div>
+</div>
+
+<!-- ── APP ── -->
+<div id="app-screen" class="screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-logo"><span></span><span></span><span></span></div>
+      <span class="topbar-name" id="topbar-site-name">Stream</span>
+    </div>
+    <div class="topbar-right">
+      <div class="nav-tabs">
+        <button class="nav-tab active" onclick="showPanel('compose')">Compose</button>
+        <button class="nav-tab" onclick="showPanel('posts')">Posts</button>
+        <button class="nav-tab" onclick="showPanel('settings')">Settings</button>
+      </div>
+      <button class="icon-btn" title="Sign out" onclick="signOut()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- COMPOSE -->
+    <div id="panel-compose" class="panel active">
+      <div class="compose-section">
+        <label class="compose-label">Title <span style="color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <input type="text" class="compose-input" id="post-title" placeholder="Add a title…"/>
+      </div>
+      <div class="compose-section">
+        <label class="compose-label">Body <span style="color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <textarea class="compose-input" id="post-body" placeholder="What's on your mind?"></textarea>
+      </div>
+      <div class="compose-section">
+        <label class="compose-label">Image <span style="color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <div class="image-drop" id="image-drop">
+          <input type="file" id="image-input" accept="image/*" onchange="handleImageSelect(this)"/>
+          <div class="image-drop-text">
+            <strong>Click to upload</strong> or drag and drop<br/>
+            <span style="font-size:0.75rem">JPG, PNG, WEBP</span>
+          </div>
+        </div>
+        <div class="image-preview" id="image-preview">
+          <img id="image-preview-img" src="" alt=""/>
+          <button class="image-preview-remove" onclick="removeImage()">✕</button>
+        </div>
+      </div>
+      <button class="btn" id="publish-btn" onclick="publishPost()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Publish
+      </button>
+      <div class="status-msg" id="compose-status"></div>
+    </div>
+
+    <!-- POSTS -->
+    <div id="panel-posts" class="panel">
+      <div class="posts-toolbar">
+        <span class="posts-count" id="posts-count">—</span>
+        <button class="btn btn-secondary btn-sm" onclick="loadPosts()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <div id="posts-list"></div>
+      <div class="status-msg" id="posts-status"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="panel-settings" class="panel">
+      <div class="settings-section">
+        <div class="settings-section-title">GitHub Repository</div>
+        <div class="settings-row"><label>Owner (username)</label><input type="text" id="s-owner" autocapitalize="none"/></div>
+        <div class="settings-row"><label>Repository</label><input type="text" id="s-repo" autocapitalize="none"/></div>
+        <div class="settings-row"><label>Branch</label><input type="text" id="s-branch" value="main" autocapitalize="none"/></div>
+        <div class="settings-row"><label>Personal Access Token</label><input type="password" id="s-token" autocapitalize="none"/></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">Site</div>
+        <div class="settings-row"><label>Site URL (e.g. https://yoursite.vercel.app)</label><input type="url" id="s-siteurl"/></div>
+        <div class="settings-row"><label>Site Name</label><input type="text" id="s-sitename"/></div>
+      </div>
+      <div class="settings-footer">
+        <button class="btn" onclick="saveSettings()">Save Settings</button>
+        <button class="btn btn-secondary" id="regen-btn" onclick="regenerateFeed()">Regenerate RSS Feed</button>
+      </div>
+      <div class="status-msg" id="settings-status"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Delete bar -->
+<div class="delete-selected-bar" id="delete-bar">
+  <span id="delete-bar-count">0 selected</span>
+  <button class="btn btn-danger btn-sm" onclick="deleteSelected()">
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+    Delete
+  </button>
+  <button class="btn btn-secondary btn-sm" onclick="clearSelection()">Cancel</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG — change these credentials
+// ─────────────────────────────────────────────
+const AUTH = {
+  username: 'admin',
+  password: 'stream2024'
+};
+// ─────────────────────────────────────────────
+
+const GITHUB_API = 'https://api.github.com';
+let selectedImage = null;
+let selectedImageFile = null;
+let allPosts = [];
+let selectedPostIds = new Set();
+
+// ── Auth ──────────────────────────────────────
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+  if (u === AUTH.username && p === AUTH.password) {
+    err.classList.remove('show');
+    document.getElementById('login-screen').classList.remove('active');
+    document.getElementById('app-screen').classList.add('active');
+    loadSettingsUI();
+  } else {
+    err.classList.add('show');
+  }
+}
+
+function signOut() {
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('login-screen').classList.add('active');
+  document.getElementById('login-pass').value = '';
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+// ── Nav ───────────────────────────────────────
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (name === 'posts') loadPosts();
+}
+
+// ── Settings ──────────────────────────────────
+function getSettings() {
+  return {
+    owner:    localStorage.getItem('cms_owner') || '',
+    repo:     localStorage.getItem('cms_repo') || '',
+    branch:   localStorage.getItem('cms_branch') || 'main',
+    token:    localStorage.getItem('cms_token') || '',
+    siteURL:  localStorage.getItem('cms_siteurl') || '',
+    siteName: localStorage.getItem('cms_sitename') || 'Stream',
+  };
+}
+
+function saveSettings() {
+  const cfg = {
+    owner:    document.getElementById('s-owner').value.trim(),
+    repo:     document.getElementById('s-repo').value.trim(),
+    branch:   document.getElementById('s-branch').value.trim() || 'main',
+    token:    document.getElementById('s-token').value.trim(),
+    siteURL:  document.getElementById('s-siteurl').value.trim().replace(/\/$/, ''),
+    siteName: document.getElementById('s-sitename').value.trim(),
+  };
+  Object.entries(cfg).forEach(([k, v]) => localStorage.setItem('cms_' + k, v));
+  document.getElementById('topbar-site-name').textContent = cfg.siteName || 'Stream';
+  showStatus('settings-status', 'Settings saved.', 'success');
+}
+
+function loadSettingsUI() {
+  const cfg = getSettings();
+  document.getElementById('s-owner').value   = cfg.owner;
+  document.getElementById('s-repo').value    = cfg.repo;
+  document.getElementById('s-branch').value  = cfg.branch;
+  document.getElementById('s-token').value   = cfg.token;
+  document.getElementById('s-siteurl').value = cfg.siteURL;
+  document.getElementById('s-sitename').value= cfg.siteName;
+  document.getElementById('topbar-site-name').textContent = cfg.siteName || 'Stream';
+}
+
+// ── Image ─────────────────────────────────────
+function handleImageSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  selectedImageFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    selectedImage = e.target.result;
+    document.getElementById('image-preview-img').src = selectedImage;
+    document.getElementById('image-preview').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeImage() {
+  selectedImage = null;
+  selectedImageFile = null;
+  document.getElementById('image-input').value = '';
+  document.getElementById('image-preview').style.display = 'none';
+}
+
+// Drag and drop
+const drop = document.getElementById('image-drop');
+drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('dragover'); });
+drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
+drop.addEventListener('drop', e => {
+  e.preventDefault();
+  drop.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) {
+    selectedImageFile = file;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      selectedImage = ev.target.result;
+      document.getElementById('image-preview-img').src = selectedImage;
+      document.getElementById('image-preview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// ── GitHub API ────────────────────────────────
+async function ghGet(path) {
+  const cfg = getSettings();
+  const res = await fetch(`${GITHUB_API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}?ref=${cfg.branch}`, {
+    headers: {
+      'Authorization': `Bearer ${cfg.token}`,
+      'Accept': 'application/vnd.github+json',
+      'Cache-Control': 'no-cache'
+    }
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+async function ghPut(path, content, message, sha) {
+  const cfg = getSettings();
+  const body = { message, content: btoa(unescape(encodeURIComponent(content))), branch: cfg.branch };
+  if (sha) body.sha = sha;
+  const res = await fetch(`${GITHUB_API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${cfg.token}`,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+async function ghPutBinary(path, base64Content, message, sha) {
+  const cfg = getSettings();
+  const body = { message, content: base64Content, branch: cfg.branch };
+  if (sha) body.sha = sha;
+  const res = await fetch(`${GITHUB_API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${cfg.token}`,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+  if (!res.ok) {
+    const err = await res.json();
+    throw new Error(err.message || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+async function fetchPosts() {
+  const data = await ghGet('posts.json');
+  const json = JSON.parse(atob(data.content.replace(/\n/g, '')));
+  return { posts: json, sha: data.sha };
+}
+
+async function fetchSHA(path) {
+  const cfg = getSettings();
+  const res = await fetch(`${GITHUB_API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}?ref=${cfg.branch}`, {
+    headers: {
+      'Authorization': `Bearer ${cfg.token}`,
+      'Accept': 'application/vnd.github+json',
+      'Cache-Control': 'no-cache'
+    }
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return data.sha;
+}
+
+// ── RSS Builder ───────────────────────────────
+function buildFeed(posts, siteURL, siteName) {
+  const now = new Date().toUTCString();
+  const items = posts.slice(0, 20).map(post => {
+    const title = post.title || post.date.slice(0, 16).replace('T', ' ');
+    let imgURL = null;
+    if (post.image) {
+      const clean = post.image.startsWith('/') ? post.image.slice(1) : post.image;
+      imgURL = post.image.startsWith('http') ? post.image : `${siteURL}/${clean}`;
+    }
+    let htmlParts = [];
+    if (post.body) {
+      const bodyHtml = post.body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br/>');
+      htmlParts.push(`<p>${bodyHtml}</p>`);
+    }
+    if (imgURL) htmlParts.push(`<img src="${imgURL}" style="max-width:100%;height:auto;"/>`);
+    const desc = htmlParts.length ? `<![CDATA[${htmlParts.join('\n')}]]>` : '';
+    const enclosure = imgURL ? `\n      <enclosure url="${imgURL}" type="image/jpeg" length="${post.imageSize || 0}"/>` : '';
+    return `
+    <item>
+      <title>${title}</title>
+      <description>${desc}</description>
+      <pubDate>${new Date(post.date).toUTCString()}</pubDate>
+      <link>${siteURL}</link>
+      <guid>${post.id}</guid>${enclosure}
+    </item>`;
+  }).join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>${xmlEsc(siteName)}</title>
+    <description>${xmlEsc(siteName)}</description>
+    <link>${siteURL}</link>
+    <atom:link href="${siteURL}/feed.xml" rel="self" type="application/rss+xml"/>
+    <lastBuildDate>${now}</lastBuildDate>${items}
+  </channel>
+</rss>`;
+}
+
+function xmlEsc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Publish ───────────────────────────────────
+async function publishPost() {
+  const cfg = getSettings();
+  if (!cfg.owner || !cfg.repo || !cfg.token) {
+    showStatus('compose-status', 'Please configure GitHub settings first.', 'error');
+    return;
+  }
+
+  const title = document.getElementById('post-title').value.trim();
+  const body  = document.getElementById('post-body').value.trim();
+  if (!title && !body && !selectedImageFile) {
+    showStatus('compose-status', 'Add some content first.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('publish-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Publishing…';
+  showStatus('compose-status', 'Uploading…', 'info');
+
+  try {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const id = String(timestamp);
+    let imagePath = null;
+    let imageSizeBytes = null;
+
+    // Upload image
+    if (selectedImageFile) {
+      const filename = `assets/images/${timestamp}.jpg`;
+      const imgBase64 = await fileToBase64(selectedImageFile);
+      const cleanBase64 = imgBase64.split(',')[1];
+      imageSizeBytes = Math.round(cleanBase64.length * 0.75); // approx bytes from base64
+      await ghPutBinary(filename, cleanBase64, `img ${id}`);
+      imagePath = filename;
+    }
+
+    // Fetch posts + SHA
+    let existingPosts = [], postsSHA = null;
+    try {
+      const result = await fetchPosts();
+      existingPosts = result.posts;
+      postsSHA = result.sha;
+    } catch(e) { /* first post */ }
+
+    const newPost = {
+      id,
+      date: new Date().toISOString(),
+      ...(title && { title }),
+      ...(body  && { body }),
+      ...(imagePath && { image: imagePath }),
+      ...(imageSizeBytes && { imageSize: imageSizeBytes }),
+    };
+
+    const updatedPosts = [newPost, ...existingPosts];
+
+    // Write posts.json
+    showStatus('compose-status', 'Saving post…', 'info');
+    await ghPut('posts.json', JSON.stringify(updatedPosts, null, 2), `post ${id}`, postsSHA);
+
+    // Write feed.xml
+    const siteURL = cfg.siteURL || `https://${cfg.owner}.github.io/${cfg.repo}`;
+    const feedXML = buildFeed(updatedPosts, siteURL, cfg.siteName || 'Stream');
+    const feedSHA = await fetchSHA('feed.xml');
+    await ghPut('feed.xml', feedXML, `feed ${id}`, feedSHA);
+
+    // Reset form
+    document.getElementById('post-title').value = '';
+    document.getElementById('post-body').value = '';
+    removeImage();
+    allPosts = updatedPosts;
+
+    showStatus('compose-status', `✓ Published! Deploying to ${siteURL}…`, 'success');
+  } catch(err) {
+    showStatus('compose-status', `Error: ${err.message}`, 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Publish';
+}
+
+// ── Posts list ────────────────────────────────
+async function loadPosts() {
+  const list = document.getElementById('posts-list');
+  const countEl = document.getElementById('posts-count');
+  const cfg = getSettings();
+  if (!cfg.owner || !cfg.repo || !cfg.token) {
+    list.innerHTML = '<div class="empty-state">Configure GitHub settings first.</div>';
+    return;
+  }
+  list.innerHTML = '<div class="empty-state"><span class="spinner"></span></div>';
+  try {
+    const { posts } = await fetchPosts();
+    allPosts = posts.sort((a,b) => new Date(b.date) - new Date(a.date));
+    renderPosts();
+    countEl.textContent = `${allPosts.length} post${allPosts.length !== 1 ? 's' : ''}`;
+  } catch(e) {
+    list.innerHTML = '<div class="empty-state">Failed to load posts.</div>';
+  }
+}
+
+function renderPosts() {
+  const list = document.getElementById('posts-list');
+  if (allPosts.length === 0) {
+    list.innerHTML = '<div class="empty-state">No posts yet.</div>';
+    return;
+  }
+  const cfg = getSettings();
+  list.innerHTML = allPosts.map(post => {
+    const isSelected = selectedPostIds.has(post.id);
+    const date = formatDate(post.date);
+    const imgURL = post.image ? (post.image.startsWith('http') ? post.image : `${cfg.siteURL}/${post.image}`) : null;
+    const label = post.title || post.body?.slice(0,60) || '(image only)';
+    const sub   = post.title && post.body ? post.body.slice(0,80) : '';
+    return `
+    <div class="post-item ${isSelected ? 'selected' : ''}" data-id="${post.id}" onclick="toggleSelect('${post.id}')">
+      <div class="post-check"><span class="post-check-tick">✓</span></div>
+      <div class="post-body-text">
+        <div class="post-item-title">${esc(label)}</div>
+        ${sub ? `<div class="post-item-body">${esc(sub)}</div>` : ''}
+        <div class="post-item-meta">
+          <span class="post-item-date">${date}</span>
+          ${post.image ? '<span class="post-item-img-badge">image</span>' : ''}
+        </div>
+      </div>
+      ${imgURL ? `<img class="post-thumb" src="${imgURL}" alt="" loading="lazy"/>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleSelect(id) {
+  if (selectedPostIds.has(id)) {
+    selectedPostIds.delete(id);
+  } else {
+    selectedPostIds.add(id);
+  }
+  renderPosts();
+  updateDeleteBar();
+}
+
+function clearSelection() {
+  selectedPostIds.clear();
+  renderPosts();
+  updateDeleteBar();
+}
+
+function updateDeleteBar() {
+  const bar = document.getElementById('delete-bar');
+  const count = selectedPostIds.size;
+  document.getElementById('delete-bar-count').textContent = `${count} selected`;
+  if (count > 0) bar.classList.add('show');
+  else bar.classList.remove('show');
+}
+
+async function deleteSelected() {
+  const cfg = getSettings();
+  const ids = Array.from(selectedPostIds);
+  if (ids.length === 0) return;
+
+  const bar = document.getElementById('delete-bar');
+  bar.innerHTML = '<span class="spinner"></span><span>Deleting…</span>';
+
+  try {
+    const { posts, sha } = await fetchPosts();
+    const updated = posts.filter(p => !ids.includes(p.id));
+    await ghPut('posts.json', JSON.stringify(updated, null, 2), `delete ${ids.length} post(s)`, sha);
+
+    const siteURL = cfg.siteURL || `https://${cfg.owner}.github.io/${cfg.repo}`;
+    const feedXML = buildFeed(updated, siteURL, cfg.siteName || 'Stream');
+    const feedSHA = await fetchSHA('feed.xml');
+    await ghPut('feed.xml', feedXML, 'feed update', feedSHA);
+
+    allPosts = updated;
+    selectedPostIds.clear();
+    renderPosts();
+    document.getElementById('posts-count').textContent = `${updated.length} post${updated.length !== 1 ? 's' : ''}`;
+    showStatus('posts-status', `✓ Deleted ${ids.length} post(s). Deploying…`, 'success');
+  } catch(err) {
+    showStatus('posts-status', `Error: ${err.message}`, 'error');
+  }
+
+  bar.innerHTML = `
+    <span id="delete-bar-count">0 selected</span>
+    <button class="btn btn-danger btn-sm" onclick="deleteSelected()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      Delete
+    </button>
+    <button class="btn btn-secondary btn-sm" onclick="clearSelection()">Cancel</button>`;
+  bar.classList.remove('show');
+}
+
+// ── Regenerate feed ───────────────────────────
+async function regenerateFeed() {
+  const cfg = getSettings();
+  const btn = document.getElementById('regen-btn');
+  btn.disabled = true;
+  btn.textContent = 'Regenerating…';
+  try {
+    const { posts } = await fetchPosts();
+    const siteURL = cfg.siteURL || `https://${cfg.owner}.github.io/${cfg.repo}`;
+    const feedXML = buildFeed(posts, siteURL, cfg.siteName || 'Stream');
+    const feedSHA = await fetchSHA('feed.xml');
+    await ghPut('feed.xml', feedXML, 'regenerate feed', feedSHA);
+    showStatus('settings-status', '✓ RSS feed regenerated.', 'success');
+  } catch(err) {
+    showStatus('settings-status', `Error: ${err.message}`, 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Regenerate RSS Feed';
+}
+
+// ── Helpers ───────────────────────────────────
+function showStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = `status-msg show ${type}`;
+  if (type !== 'info') setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+    + ' · '
+    + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+</script>
+</body>
+</html>
