@@ -309,3 +309,18 @@ main {
   border-color: var(--text);
   color: var(--bg);
 }
+
+/* ── Multi-image gallery ── */
+.post-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 6px;
+  margin-top: 14px;
+}
+.post-gallery .post-image {
+  margin-top: 0;
+  aspect-ratio: 1;
+}
+.post-gallery .post-image::before {
+  padding-top: 100%;
+}

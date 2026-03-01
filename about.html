@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .about-content {
+      padding: 48px 0 100px;
+    }
+    .about-content h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      line-height: 1.2;
+    }
+    .about-content p {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 1em;
+    }
+    .about-content a {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="site-name" href="/" id="site-name">Stream</a>
+    <div class="header-right">
+      <a class="rss-link" href="/">Back</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="about-content" id="about-content">
+    <h1>About</h1>
+    <p>This is a personal stream of posts, images, and ideas.</p>
+  </div>
+</main>
+
+<script>
+  async function init() {
+    try {
+      const cfg = await fetch('config.json?v=' + Date.now()).then(r => r.json());
+      if (cfg.siteName) {
+        document.getElementById('site-name').textContent = cfg.siteName;
+        document.title = 'About — ' + cfg.siteName;
+      }
+      if (cfg.about) {
+        // Render about text from config if set
+        const el = document.getElementById('about-content');
+        el.innerHTML = '<h1>About</h1>' + cfg.about.split('\n\n').map(p =>
+          '<p>' + p.replace(/\n/g,'<br>') + '</p>'
+        ).join('');
+      }
+    } catch(e) {}
+  }
+  init();
+</script>
+</body>
+</html>

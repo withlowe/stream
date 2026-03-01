@@ -290,34 +290,42 @@ textarea.compose-input {
 }
 .image-drop-text strong { color: var(--text); }
 
-.image-preview {
+.image-previews {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
   margin-top: 12px;
-  border-radius: var(--radius);
-  overflow: hidden;
-  position: relative;
-  display: none;
 }
-.image-preview img {
+.image-preview-thumb {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.image-preview-thumb img {
   width: 100%;
-  max-height: 300px;
+  height: 100%;
   object-fit: cover;
   display: block;
 }
 .image-preview-remove {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  background: rgba(0,0,0,0.6);
+  top: 4px;
+  right: 4px;
+  background: rgba(0,0,0,0.65);
   border: none;
   color: white;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
 }
 
 /* ── Buttons ── */
@@ -608,18 +616,15 @@ textarea.compose-input {
         <input type="text" class="compose-input" id="post-tags" placeholder="design, travel, work…"/>
       </div>
       <div class="compose-section">
-        <label class="compose-label">Image <span style="color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0">(optional)</span></label>
+        <label class="compose-label">Images <span style="color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0">(optional — multiple allowed)</span></label>
         <div class="image-drop" id="image-drop">
-          <input type="file" id="image-input" accept="image/*" onchange="handleImageSelect(this)"/>
+          <input type="file" id="image-input" accept="image/*" multiple onchange="handleImageSelect(this)"/>
           <div class="image-drop-text">
             <strong>Click to upload</strong> or drag and drop<br/>
-            <span style="font-size:0.75rem">JPG, PNG, WEBP</span>
+            <span style="font-size:0.75rem">JPG, PNG, WEBP — select multiple</span>
           </div>
         </div>
-        <div class="image-preview" id="image-preview">
-          <img id="image-preview-img" src="" alt=""/>
-          <button class="image-preview-remove" onclick="removeImage()">✕</button>
-        </div>
+        <div class="image-previews" id="image-previews"></div>
       </div>
       <div class="compose-section" style="display:flex;align-items:center;gap:10px;">
         <button type="button" id="featured-toggle" onclick="toggleFeatured()" style="
@@ -666,6 +671,7 @@ textarea.compose-input {
         <div class="settings-section-title">Site</div>
         <div class="settings-row"><label>Site URL (e.g. https://yoursite.vercel.app)</label><input type="url" id="s-siteurl"/></div>
         <div class="settings-row"><label>Site Name</label><input type="text" id="s-sitename"/></div>
+        <div class="settings-row"><label>About page text</label><textarea id="s-about" class="compose-input" style="min-height:100px" placeholder="Write something about yourself or this site…"></textarea></div>
       </div>
       <div class="settings-footer">
         <button class="btn" onclick="saveSettings()">Save Settings</button>
@@ -699,8 +705,7 @@ const AUTH = {
 // ─────────────────────────────────────────────
 
 const GITHUB_API = 'https://api.github.com';
-let selectedImage = null;
-let selectedImageFile = null;
+let selectedImageFiles = []; // array of File objects
 let allPosts = [];
 let selectedPostIds = new Set();
 
@@ -747,6 +752,7 @@ function getSettings() {
     token:    localStorage.getItem('cms_token') || '',
     siteURL:  localStorage.getItem('cms_siteurl') || '',
     siteName: localStorage.getItem('cms_sitename') || 'Stream',
+    about:    localStorage.getItem('cms_about') || '',
   };
 }
 
@@ -758,6 +764,7 @@ function saveSettings() {
     token:    document.getElementById('s-token').value.trim(),
     siteURL:  document.getElementById('s-siteurl').value.trim().replace(/\/$/, ''),
     siteName: document.getElementById('s-sitename').value.trim(),
+    about:    document.getElementById('s-about').value.trim(),
   };
   Object.entries({
     cms_owner:    cfg.owner,
@@ -766,6 +773,7 @@ function saveSettings() {
     cms_token:    cfg.token,
     cms_siteurl:  cfg.siteURL,
     cms_sitename: cfg.siteName,
+    cms_about:    cfg.about,
   }).forEach(([k, v]) => localStorage.setItem(k, v));
   document.getElementById('topbar-site-name').textContent = cfg.siteName || 'Stream';
   showStatus('settings-status', 'Settings saved.', 'success');
@@ -779,28 +787,41 @@ function loadSettingsUI() {
   document.getElementById('s-token').value   = cfg.token;
   document.getElementById('s-siteurl').value = cfg.siteURL;
   document.getElementById('s-sitename').value= cfg.siteName;
+  document.getElementById('s-about').value    = cfg.about;
   document.getElementById('topbar-site-name').textContent = cfg.siteName || 'Stream';
 }
 
 // ── Image ─────────────────────────────────────
 function handleImageSelect(input) {
-  const file = input.files[0];
-  if (!file) return;
-  selectedImageFile = file;
-  const reader = new FileReader();
-  reader.onload = e => {
-    selectedImage = e.target.result;
-    document.getElementById('image-preview-img').src = selectedImage;
-    document.getElementById('image-preview').style.display = 'block';
-  };
-  reader.readAsDataURL(file);
+  const files = Array.from(input.files);
+  files.forEach(f => addImageFile(f));
+  input.value = ''; // reset so same file can be re-added
 }
 
-function removeImage() {
-  selectedImage = null;
-  selectedImageFile = null;
-  document.getElementById('image-input').value = '';
-  document.getElementById('image-preview').style.display = 'none';
+function addImageFile(file) {
+  if (!file.type.startsWith('image/')) return;
+  selectedImageFiles.push(file);
+  renderImagePreviews();
+}
+
+function removeImage(idx) {
+  selectedImageFiles.splice(idx, 1);
+  renderImagePreviews();
+}
+
+function renderImagePreviews() {
+  const container = document.getElementById('image-previews');
+  container.innerHTML = '';
+  selectedImageFiles.forEach((file, i) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.className = 'image-preview-thumb';
+      div.innerHTML = `<img src="${e.target.result}" alt=""/><button class="image-preview-remove" onclick="removeImage(${i})">✕</button>`;
+      container.appendChild(div);
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 // Drag and drop
@@ -810,17 +831,7 @@ drop.addEventListener('dragleave', () => drop.classList.remove('dragover'));
 drop.addEventListener('drop', e => {
   e.preventDefault();
   drop.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) {
-    selectedImageFile = file;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      selectedImage = ev.target.result;
-      document.getElementById('image-preview-img').src = selectedImage;
-      document.getElementById('image-preview').style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-  }
+  Array.from(e.dataTransfer.files).forEach(f => addImageFile(f));
 });
 
 
@@ -932,7 +943,11 @@ function buildFeed(posts, siteURL, siteName) {
   }
 
   const items = posts.slice(0, 20).map(p => {
-    const imgURL = absImg(p.image);
+    // Support both single image (legacy) and images array
+    const imgURLs = p.images
+      ? p.images.map(absImg)
+      : p.image ? [absImg(p.image)] : [];
+    const imgURL = imgURLs[0] || null; // primary image for enclosure
     const titleText = xmlEsc(p.title || new Date(p.date).toISOString().slice(0,16).replace('T',' '));
     const pubDate = new Date(p.date).toUTCString();
 
@@ -942,8 +957,10 @@ function buildFeed(posts, siteURL, siteName) {
     if (p.body) {
       cdataInner += '<p>' + p.body.replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
     }
-    if (imgURL) {
-      cdataInner += '<img src="' + imgURL + '" style="max-width:100%;height:auto;display:block">';
+    if (imgURLs.length > 0) {
+      imgURLs.forEach(u => {
+        cdataInner += '<img src="' + u + '" style="max-width:100%;height:auto;display:block;margin:4px 0">';
+      });
     }
 
     const lines = [
@@ -955,11 +972,10 @@ function buildFeed(posts, siteURL, siteName) {
     ];
     if (cdataInner) lines.push(`<description><![CDATA[${cdataInner}]]></description>`);
     if (imgURL) {
-      // enclosure: only include if we have real size (length=0 causes some readers to skip)
-      if (p.imageSize > 0) {
-        lines.push(`<enclosure url="${xmlEsc(imgURL)}" length="${p.imageSize}" type="image/jpeg"/>`);
+      const primarySize = p.images ? (p.imageSizes && p.imageSizes[0]) || 0 : p.imageSize || 0;
+      if (primarySize > 0) {
+        lines.push(`<enclosure url="${xmlEsc(imgURL)}" length="${primarySize}" type="image/jpeg"/>`);
       }
-      // media:content — used by Reeder, NetNewsWire, Feedly etc
       lines.push(`<media:content url="${xmlEsc(imgURL)}" medium="image" type="image/jpeg"/>`);
     }
     lines.push('</item>');
@@ -994,7 +1010,7 @@ async function publishPost() {
 
   const title = document.getElementById('post-title').value.trim();
   const body  = document.getElementById('post-body').value.trim();
-  if (!title && !body && !selectedImageFile) {
+  if (!title && !body && selectedImageFiles.length === 0) {
     showStatus('compose-status', 'Add some content first.', 'error');
     return;
   }
@@ -1010,16 +1026,20 @@ async function publishPost() {
     let imagePath = null;
     let imageSizeBytes = null;
 
-    // Upload image FIRST (before fetching posts SHA, so SHA is fresh after)
-    if (selectedImageFile) {
-      const filename = `assets/images/${timestamp}.jpg`;
-      const imgBase64 = await fileToBase64(selectedImageFile);
+    // Upload all images sequentially
+    const imagePaths = [];
+    const imageSizes = [];
+    for (let i = 0; i < selectedImageFiles.length; i++) {
+      const file = selectedImageFiles[i];
+      const filename = `assets/images/${timestamp}_${i}.jpg`;
+      const imgBase64 = await fileToBase64(file);
       const cleanBase64 = imgBase64.split(',')[1];
       const byteCount = Math.round((cleanBase64.length * 3) / 4) - (cleanBase64.endsWith('==') ? 2 : cleanBase64.endsWith('=') ? 1 : 0);
-      imageSizeBytes = byteCount;
       const imgSHA = await fetchSHA(filename);
-      await ghPutBinary(filename, cleanBase64, `img ${id}`, imgSHA);
-      imagePath = filename;
+      await ghPutBinary(filename, cleanBase64, `img ${id}_${i}`, imgSHA);
+      imagePaths.push(filename);
+      imageSizes.push(byteCount);
+      showStatus('compose-status', `Uploading image ${i+1} of ${selectedImageFiles.length}…`, 'info');
     }
 
     // Fetch posts + SHA AFTER image upload so SHA reflects latest commit
@@ -1038,8 +1058,9 @@ async function publishPost() {
       date: new Date().toISOString(),
       ...(title && { title }),
       ...(body  && { body }),
-      ...(imagePath && { image: imagePath }),
-      ...(imageSizeBytes && { imageSize: imageSizeBytes }),
+      // Multi-image: store as array; single image for back-compat
+      ...(imagePaths.length === 1 && { image: imagePaths[0], imageSize: imageSizes[0] }),
+      ...(imagePaths.length > 1  && { images: imagePaths, imageSizes }),
       ...(isFeatured && { featured: true }),
       ...(tags.length && { tags }),
     };
@@ -1068,7 +1089,8 @@ async function publishPost() {
     document.getElementById('post-title').value = '';
     document.getElementById('post-body').value = '';
     document.getElementById('post-tags').value = '';
-    removeImage();
+    selectedImageFiles = [];
+    renderImagePreviews();
     allPosts = updatedPosts;
 
     showStatus('compose-status', `✓ Published! Deploying to ${siteURL}…`, 'success');
@@ -1224,7 +1246,7 @@ async function updateSiteName() {
   btn.textContent = 'Updating…';
   try {
     // Write config.json — index.html reads this at runtime, no HTML editing needed
-    const config = { siteName: name };
+    const config = { siteName: name, ...(cfg.about && { about: cfg.about }) };
     let cfgSHA = null;
     try { cfgSHA = await fetchSHA('config.json'); } catch(e) {}
     await ghPut('config.json', JSON.stringify(config, null, 2), `site name: ${name}`, cfgSHA);

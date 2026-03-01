@@ -14,6 +14,7 @@
   <div class="header-inner">
     <a class="site-name" href="/" id="site-name">Stream</a>
     <div class="header-right">
+      <a class="rss-link" href="/about.html">About</a>
       <button class="rss-link" onclick="copyFeed(this)">Subscribe</button>
     </div>
   </div>
@@ -84,13 +85,24 @@
     const timeEl  = '<div class="post-meta"><time class="post-time" datetime="' + post.date + '">' + formatDate(post.date) + '</time>' + (tagsInline ? '<span class="post-tags-inline">' + tagsInline + '</span>' : '') + '</div>';
     const titleEl = post.title ? '<div class="post-title">' + escapeHTML(post.title) + '</div>' : '';
     const bodyEl  = post.body  ? '<div class="post-body">'  + formatBody(post.body)  + '</div>' : '';
-    const imgPath = post.image ? (post.image.startsWith('http') ? post.image : '/' + post.image) : null;
-    const imgEl   = imgPath    ? '<div class="post-image loading"><img data-src="' + imgPath + '" alt=""/></div>' : '';
+    // Support both single image (legacy) and multi-image array
+    const imgPaths = post.images
+      ? post.images.map(p => p.startsWith('http') ? p : '/' + p)
+      : post.image
+        ? [post.image.startsWith('http') ? post.image : '/' + post.image]
+        : [];
+    let imgEl = '';
+    if (imgPaths.length === 1) {
+      imgEl = '<div class="post-image loading"><img data-src="' + imgPaths[0] + '" alt=""/></div>';
+    } else if (imgPaths.length > 1) {
+      imgEl = '<div class="post-gallery">' +
+        imgPaths.map(p => '<div class="post-image loading"><img data-src="' + p + '" alt=""/></div>').join('') +
+        '</div>';
+    }
 
     el.innerHTML = timeEl + titleEl + bodyEl + imgEl;
 
-    const img = el.querySelector('img[data-src]');
-    if (img) imgObserver.observe(img);
+    el.querySelectorAll('img[data-src]').forEach(img => imgObserver.observe(img));
     return el;
   }
 
