@@ -604,6 +604,10 @@ textarea.compose-input {
         <textarea class="compose-input" id="post-body" placeholder="What's on your mind?"></textarea>
       </div>
       <div class="compose-section">
+        <label class="compose-label">Tags <span style="color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0">(optional — comma separated)</span></label>
+        <input type="text" class="compose-input" id="post-tags" placeholder="design, travel, work…"/>
+      </div>
+      <div class="compose-section">
         <label class="compose-label">Image <span style="color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0">(optional)</span></label>
         <div class="image-drop" id="image-drop">
           <input type="file" id="image-input" accept="image/*" onchange="handleImageSelect(this)"/>
@@ -616,6 +620,18 @@ textarea.compose-input {
           <img id="image-preview-img" src="" alt=""/>
           <button class="image-preview-remove" onclick="removeImage()">✕</button>
         </div>
+      </div>
+      <div class="compose-section" style="display:flex;align-items:center;gap:10px;">
+        <button type="button" id="featured-toggle" onclick="toggleFeatured()" style="
+          width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;
+          background:var(--border);position:relative;transition:background 0.2s;flex-shrink:0;">
+          <span id="featured-knob" style="
+            position:absolute;top:2px;left:2px;width:16px;height:16px;
+            border-radius:50%;background:white;transition:left 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3);"></span>
+        </button>
+        <label style="font-size:0.85rem;color:var(--muted);cursor:pointer;" onclick="toggleFeatured()">
+          Featured — wider image
+        </label>
       </div>
       <button class="btn" id="publish-btn" onclick="publishPost()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -653,6 +669,7 @@ textarea.compose-input {
       </div>
       <div class="settings-footer">
         <button class="btn" onclick="saveSettings()">Save Settings</button>
+        <button class="btn btn-secondary" id="update-name-btn" onclick="updateSiteName()">Update Site Header</button>
         <button class="btn btn-secondary" id="regen-btn" onclick="regenerateFeed()">Regenerate RSS Feed</button>
       </div>
       <div class="status-msg" id="settings-status"></div>
@@ -742,7 +759,14 @@ function saveSettings() {
     siteURL:  document.getElementById('s-siteurl').value.trim().replace(/\/$/, ''),
     siteName: document.getElementById('s-sitename').value.trim(),
   };
-  Object.entries(cfg).forEach(([k, v]) => localStorage.setItem('cms_' + k, v));
+  Object.entries({
+    cms_owner:    cfg.owner,
+    cms_repo:     cfg.repo,
+    cms_branch:   cfg.branch,
+    cms_token:    cfg.token,
+    cms_siteurl:  cfg.siteURL,
+    cms_sitename: cfg.siteName,
+  }).forEach(([k, v]) => localStorage.setItem(k, v));
   document.getElementById('topbar-site-name').textContent = cfg.siteName || 'Stream';
   showStatus('settings-status', 'Settings saved.', 'success');
 }
@@ -799,6 +823,17 @@ drop.addEventListener('drop', e => {
   }
 });
 
+
+// ── Featured toggle ───────────────────────────
+let isFeatured = false;
+function toggleFeatured() {
+  isFeatured = !isFeatured;
+  const btn = document.getElementById('featured-toggle');
+  const knob = document.getElementById('featured-knob');
+  btn.style.background = isFeatured ? 'var(--blue)' : 'var(--border)';
+  knob.style.left = isFeatured ? '18px' : '2px';
+}
+
 // ── GitHub API ────────────────────────────────
 async function ghGet(path) {
   const cfg = getSettings();
@@ -806,16 +841,23 @@ async function ghGet(path) {
     headers: {
       'Authorization': `Bearer ${cfg.token}`,
       'Accept': 'application/vnd.github+json',
-      'Cache-Control': 'no-cache'
     }
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   return res.json();
 }
 
+function toBase64(str) {
+  // Proper UTF-8 safe base64 encoding
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  return btoa(binary);
+}
+
 async function ghPut(path, content, message, sha) {
   const cfg = getSettings();
-  const body = { message, content: btoa(unescape(encodeURIComponent(content))), branch: cfg.branch };
+  const body = { message, content: toBase64(content), branch: cfg.branch };
   if (sha) body.sha = sha;
   const res = await fetch(`${GITHUB_API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}`, {
     method: 'PUT',
@@ -827,10 +869,11 @@ async function ghPut(path, content, message, sha) {
     body: JSON.stringify(body)
   });
   if (!res.ok) {
-    const err = await res.json();
+    const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `HTTP ${res.status}`);
   }
-  return res.json();
+  const data = await res.json();
+  return data?.content?.sha || null; // return new SHA
 }
 
 async function ghPutBinary(path, base64Content, message, sha) {
@@ -847,10 +890,11 @@ async function ghPutBinary(path, base64Content, message, sha) {
     body: JSON.stringify(body)
   });
   if (!res.ok) {
-    const err = await res.json();
+    const err = await res.json().catch(() => ({}));
     throw new Error(err.message || `HTTP ${res.status}`);
   }
-  return res.json();
+  const data = await res.json();
+  return data?.content?.sha || null;
 }
 
 async function fetchPosts() {
@@ -865,7 +909,6 @@ async function fetchSHA(path) {
     headers: {
       'Authorization': `Bearer ${cfg.token}`,
       'Accept': 'application/vnd.github+json',
-      'Cache-Control': 'no-cache'
     }
   });
   if (res.status === 404) return null;
@@ -875,48 +918,67 @@ async function fetchSHA(path) {
 }
 
 // ── RSS Builder ───────────────────────────────
-function buildFeed(posts, siteURL, siteName) {
-  const now = new Date().toUTCString();
-  const items = posts.slice(0, 20).map(post => {
-    const title = post.title || post.date.slice(0, 16).replace('T', ' ');
-    let imgURL = null;
-    if (post.image) {
-      const clean = post.image.startsWith('/') ? post.image.slice(1) : post.image;
-      imgURL = post.image.startsWith('http') ? post.image : `${siteURL}/${clean}`;
-    }
-    let htmlParts = [];
-    if (post.body) {
-      const bodyHtml = post.body.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-        .replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br/>');
-      htmlParts.push(`<p>${bodyHtml}</p>`);
-    }
-    if (imgURL) htmlParts.push(`<img src="${imgURL}" style="max-width:100%;height:auto;"/>`);
-    const desc = htmlParts.length ? `<![CDATA[${htmlParts.join('\n')}]]>` : '';
-    const enclosure = imgURL ? `\n      <enclosure url="${imgURL}" type="image/jpeg" length="${post.imageSize || 0}"/>` : '';
-    return `
-    <item>
-      <title>${title}</title>
-      <description>${desc}</description>
-      <pubDate>${new Date(post.date).toUTCString()}</pubDate>
-      <link>${siteURL}</link>
-      <guid>${post.id}</guid>${enclosure}
-    </item>`;
-  }).join('');
-
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
-  <channel>
-    <title>${xmlEsc(siteName)}</title>
-    <description>${xmlEsc(siteName)}</description>
-    <link>${siteURL}</link>
-    <atom:link href="${siteURL}/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>${now}</lastBuildDate>${items}
-  </channel>
-</rss>`;
+function xmlEsc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
-function xmlEsc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function buildFeed(posts, siteURL, siteName) {
+  const base = siteURL.replace(/\/+$/, '');
+
+  function absImg(path) {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return base + '/' + path.replace(/^\/+/, '');
+  }
+
+  const items = posts.slice(0, 20).map(p => {
+    const imgURL = absImg(p.image);
+    const titleText = xmlEsc(p.title || new Date(p.date).toISOString().slice(0,16).replace('T',' '));
+    const pubDate = new Date(p.date).toUTCString();
+
+    // Description: CDATA with body text + inline img
+    // CDATA content is NOT xml-escaped — it's raw HTML
+    let cdataInner = '';
+    if (p.body) {
+      cdataInner += '<p>' + p.body.replace(/\n\n+/g,'</p><p>').replace(/\n/g,'<br>') + '</p>';
+    }
+    if (imgURL) {
+      cdataInner += '<img src="' + imgURL + '" style="max-width:100%;height:auto;display:block">';
+    }
+
+    const lines = [
+      '<item>',
+      `<title>${titleText}</title>`,
+      `<link>${xmlEsc(base)}</link>`,
+      `<guid isPermaLink="false">${xmlEsc(p.id)}</guid>`,
+      `<pubDate>${pubDate}</pubDate>`,
+    ];
+    if (cdataInner) lines.push(`<description><![CDATA[${cdataInner}]]></description>`);
+    if (imgURL) {
+      // enclosure: only include if we have real size (length=0 causes some readers to skip)
+      if (p.imageSize > 0) {
+        lines.push(`<enclosure url="${xmlEsc(imgURL)}" length="${p.imageSize}" type="image/jpeg"/>`);
+      }
+      // media:content — used by Reeder, NetNewsWire, Feedly etc
+      lines.push(`<media:content url="${xmlEsc(imgURL)}" medium="image" type="image/jpeg"/>`);
+    }
+    lines.push('</item>');
+    return lines.join('\n');
+  }).join('\n');
+
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">',
+    '<channel>',
+    `<title>${xmlEsc(siteName)}</title>`,
+    `<description>${xmlEsc(siteName)}</description>`,
+    `<link>${xmlEsc(base)}</link>`,
+    `<atom:link href="${xmlEsc(base+'/feed.xml')}" rel="self" type="application/rss+xml"/>`,
+    `<lastBuildDate>${new Date().toUTCString()}</lastBuildDate>`,
+    items,
+    '</channel>',
+    '</rss>'
+  ].join('\n');
 }
 
 // ── Publish ───────────────────────────────────
@@ -925,6 +987,9 @@ async function publishPost() {
   if (!cfg.owner || !cfg.repo || !cfg.token) {
     showStatus('compose-status', 'Please configure GitHub settings first.', 'error');
     return;
+  }
+  if (!cfg.siteURL) {
+    showStatus('compose-status', 'Tip: add your Site URL in Settings so RSS links work correctly.', 'info');
   }
 
   const title = document.getElementById('post-title').value.trim();
@@ -945,23 +1010,28 @@ async function publishPost() {
     let imagePath = null;
     let imageSizeBytes = null;
 
-    // Upload image
+    // Upload image FIRST (before fetching posts SHA, so SHA is fresh after)
     if (selectedImageFile) {
       const filename = `assets/images/${timestamp}.jpg`;
       const imgBase64 = await fileToBase64(selectedImageFile);
       const cleanBase64 = imgBase64.split(',')[1];
-      imageSizeBytes = Math.round(cleanBase64.length * 0.75); // approx bytes from base64
-      await ghPutBinary(filename, cleanBase64, `img ${id}`);
+      const byteCount = Math.round((cleanBase64.length * 3) / 4) - (cleanBase64.endsWith('==') ? 2 : cleanBase64.endsWith('=') ? 1 : 0);
+      imageSizeBytes = byteCount;
+      const imgSHA = await fetchSHA(filename);
+      await ghPutBinary(filename, cleanBase64, `img ${id}`, imgSHA);
       imagePath = filename;
     }
 
-    // Fetch posts + SHA
+    // Fetch posts + SHA AFTER image upload so SHA reflects latest commit
     let existingPosts = [], postsSHA = null;
     try {
       const result = await fetchPosts();
       existingPosts = result.posts;
       postsSHA = result.sha;
     } catch(e) { /* first post */ }
+
+    const rawTags = document.getElementById('post-tags').value;
+    const tags = rawTags.split(',').map(t => t.trim()).filter(Boolean);
 
     const newPost = {
       id,
@@ -970,7 +1040,15 @@ async function publishPost() {
       ...(body  && { body }),
       ...(imagePath && { image: imagePath }),
       ...(imageSizeBytes && { imageSize: imageSizeBytes }),
+      ...(isFeatured && { featured: true }),
+      ...(tags.length && { tags }),
     };
+
+    // Reset featured toggle
+    isFeatured = false;
+    const knob = document.getElementById('featured-knob');
+    document.getElementById('featured-toggle').style.background = 'var(--border)';
+    if (knob) knob.style.left = '2px';
 
     const updatedPosts = [newPost, ...existingPosts];
 
@@ -978,15 +1056,18 @@ async function publishPost() {
     showStatus('compose-status', 'Saving post…', 'info');
     await ghPut('posts.json', JSON.stringify(updatedPosts, null, 2), `post ${id}`, postsSHA);
 
-    // Write feed.xml
+    // Write feed.xml — fetch fresh SHA (posts.json commit has landed by now)
+    showStatus('compose-status', 'Generating feed…', 'info');
     const siteURL = cfg.siteURL || `https://${cfg.owner}.github.io/${cfg.repo}`;
     const feedXML = buildFeed(updatedPosts, siteURL, cfg.siteName || 'Stream');
-    const feedSHA = await fetchSHA('feed.xml');
+    let feedSHA = null;
+    try { feedSHA = await fetchSHA('feed.xml'); } catch(e) {}
     await ghPut('feed.xml', feedXML, `feed ${id}`, feedSHA);
 
     // Reset form
     document.getElementById('post-title').value = '';
     document.getElementById('post-body').value = '';
+    document.getElementById('post-tags').value = '';
     removeImage();
     allPosts = updatedPosts;
 
@@ -1041,6 +1122,7 @@ function renderPosts() {
         <div class="post-item-meta">
           <span class="post-item-date">${date}</span>
           ${post.image ? '<span class="post-item-img-badge">image</span>' : ''}
+          ${Array.isArray(post.tags) && post.tags.length ? post.tags.map(t => `<span class="post-item-img-badge" style="color:var(--muted)">${esc(t)}</span>`).join('') : ''}
         </div>
       </div>
       ${imgURL ? `<img class="post-thumb" src="${imgURL}" alt="" loading="lazy"/>` : ''}
@@ -1127,6 +1209,39 @@ async function regenerateFeed() {
   }
   btn.disabled = false;
   btn.textContent = 'Regenerate RSS Feed';
+}
+
+
+// ── Update site name in index.html ───────────
+async function updateSiteName() {
+  const cfg = getSettings();
+  const name = (cfg.siteName || '').trim();
+  if (!name) { showStatus('settings-status', 'Enter a site name first.', 'error'); return; }
+  if (!cfg.owner || !cfg.repo || !cfg.token) { showStatus('settings-status', 'Configure GitHub settings first.', 'error'); return; }
+
+  const btn = document.getElementById('update-name-btn');
+  btn.disabled = true;
+  btn.textContent = 'Updating…';
+  try {
+    // Write config.json — index.html reads this at runtime, no HTML editing needed
+    const config = { siteName: name };
+    let cfgSHA = null;
+    try { cfgSHA = await fetchSHA('config.json'); } catch(e) {}
+    await ghPut('config.json', JSON.stringify(config, null, 2), `site name: ${name}`, cfgSHA);
+
+    // Regenerate feed with new name
+    const { posts } = await fetchPosts();
+    const siteURL = cfg.siteURL || ('https://' + cfg.owner + '.github.io/' + cfg.repo);
+    let feedSHA = null;
+    try { feedSHA = await fetchSHA('feed.xml'); } catch(e) {}
+    await ghPut('feed.xml', buildFeed(posts, siteURL, name), 'feed: ' + name, feedSHA);
+
+    showStatus('settings-status', '✓ Site name updated to "' + name + '". Deploying…', 'success');
+  } catch(err) {
+    showStatus('settings-status', 'Error: ' + err.message, 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = 'Update Site Header';
 }
 
 // ── Helpers ───────────────────────────────────
