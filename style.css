@@ -71,6 +71,10 @@ header {
   font-weight: 400;
   color: var(--muted);
   text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
   transition: color 0.15s;
 }
 .rss-link:hover { color: var(--text); }
@@ -93,12 +97,25 @@ main {
 }
 .post.visible { opacity: 1; transform: translateY(0); }
 
+.post-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
 .post-time {
   display: block;
   font-size: 0.8rem;
   font-weight: 400;
   color: var(--muted);
-  margin-bottom: 10px;
+}
+
+.post-tags-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 
 .post-title {
@@ -155,6 +172,36 @@ main {
 }
 
 .post.image-only .post-image::before { padding-top: 75%; }
+/* ── Featured post — wider than feed ── */
+.post.featured .post-image {
+  margin-left: -190px;
+  margin-right: -190px;
+  border-radius: 10px;
+}
+
+/* Full image height — no aspect ratio crop */
+.post.featured .post-image::before {
+  display: none;
+}
+
+.post.featured .post-image img {
+  position: static;
+  width: 100%;
+  height: auto;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.post.featured .post-image img.loaded { opacity: 1; }
+
+@media (max-width: 700px) {
+  .post.featured .post-image {
+    margin-left: -20px;
+    margin-right: -20px;
+    border-radius: 6px;
+  }
+}
+
 
 /* ── States ── */
 .feed-empty {
@@ -201,4 +248,64 @@ main {
 @media (max-width: 480px) {
   .header-inner { height: 44px; }
   .post { padding: 20px 0; }
+}
+
+/* ── Tag filter bar ── */
+.tag-bar {
+  position: sticky;
+  top: 48px;
+  z-index: 90;
+}
+.tag-bar-inner {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tag-bar-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.tag-bar-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.tag-bar-clear {
+  margin-left: auto;
+  background: none;
+  border: none;
+  font-size: 0.72rem;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s;
+  font-family: var(--sans);
+}
+.tag-bar-clear:hover { color: var(--text); }
+
+/* ── Post tags ── */
+.post-tag {
+  background: none;
+  border: 1px solid rgba(128,128,128,0.2);
+  border-radius: 20px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  padding: 3px 10px;
+  transition: all 0.15s;
+}
+.post-tag:hover {
+  border-color: var(--text);
+  color: var(--text);
+}
+.post-tag.active {
+  background: var(--text);
+  border-color: var(--text);
+  color: var(--bg);
 }

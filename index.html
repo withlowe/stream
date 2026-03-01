@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Static HTML Feed from App</title>
+  <title>Stream</title>
   <meta name="description" content="A personal stream." />
   <link rel="alternate" type="application/rss+xml" title="Stream" href="/feed.xml" />
   <link rel="stylesheet" href="style.css" />
@@ -12,12 +12,21 @@
 
 <header>
   <div class="header-inner">
-    <a class="site-name" href="/">Static HTML Feed from App</a>
+    <a class="site-name" href="/" id="site-name">Stream</a>
     <div class="header-right">
-      <a class="rss-link" href="/feed.xml">Subscribe</a>
+      <button class="rss-link" onclick="copyFeed(this)">Subscribe</button>
     </div>
   </div>
 </header>
+
+<!-- Tag filter bar — hidden until a tag is active -->
+<div class="tag-bar" id="tag-bar" style="display:none">
+  <div class="tag-bar-inner">
+    <span class="tag-bar-label">Tagged:</span>
+    <span class="tag-bar-name" id="tag-bar-name"></span>
+    <button class="tag-bar-clear" onclick="clearTag()">✕ Show all</button>
+  </div>
+</div>
 
 <main>
   <div class="feed" id="feed"></div>
@@ -30,6 +39,8 @@
 <script>
   const PAGE_SIZE = 10;
   let allPosts = [];
+  let filteredPosts = [];
+  let activeTag = null;
   let page = 0;
   let loading = false;
   let done = false;
@@ -43,8 +54,7 @@
     if (diff < 86400)  return Math.floor(diff / 3600) + 'h ago';
     if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
     return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
-      + ' · '
-      + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+      + ' · ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   }
 
   function escapeHTML(str) {
@@ -52,22 +62,30 @@
   }
 
   function formatBody(str) {
-    return str
-      .split(/\n\n+/)
-      .map(p => '<p>' + escapeHTML(p).replace(/\n/g, '<br>') + '</p>')
+    return str.split(/\n\n+/)
+      .map(p => '<p>' + escapeHTML(p).replace(/\n/g,'<br>') + '</p>')
       .join('');
   }
 
   function makePost(post) {
     const el = document.createElement('article');
     const imageOnly = !post.body && post.image;
-    el.className = 'post' + (imageOnly ? ' image-only' : '');
+    const featured  = post.featured === true;
+    let cls = 'post';
+    if (imageOnly) cls += ' image-only';
+    if (featured)  cls += ' featured';
+    el.className = cls;
 
-    const timeEl  = '<time class="post-time" datetime="' + post.date + '">' + formatDate(post.date) + '</time>';
+    const tags = Array.isArray(post.tags) ? post.tags : [];
+    const tagsInline = tags.map(t =>
+      '<button class="post-tag' + (t === activeTag ? ' active' : '') + '" onclick="filterTag(\'' + escapeHTML(t) + '\')">' + escapeHTML(t) + '</button>'
+    ).join('');
+
+    const timeEl  = '<div class="post-meta"><time class="post-time" datetime="' + post.date + '">' + formatDate(post.date) + '</time>' + (tagsInline ? '<span class="post-tags-inline">' + tagsInline + '</span>' : '') + '</div>';
     const titleEl = post.title ? '<div class="post-title">' + escapeHTML(post.title) + '</div>' : '';
     const bodyEl  = post.body  ? '<div class="post-body">'  + formatBody(post.body)  + '</div>' : '';
     const imgPath = post.image ? (post.image.startsWith('http') ? post.image : '/' + post.image) : null;
-    const imgEl   = imgPath    ? '<div class="post-image loading"><img data-src="' + imgPath + '" alt="" /></div>' : '';
+    const imgEl   = imgPath    ? '<div class="post-image loading"><img data-src="' + imgPath + '" alt=""/></div>' : '';
 
     el.innerHTML = timeEl + titleEl + bodyEl + imgEl;
 
@@ -76,11 +94,40 @@
     return el;
   }
 
+  function filterTag(tag) {
+    if (activeTag === tag) { clearTag(); return; }
+    activeTag = tag;
+    document.getElementById('tag-bar').style.display = 'block';
+    document.getElementById('tag-bar-name').textContent = tag;
+    filteredPosts = allPosts.filter(p => Array.isArray(p.tags) && p.tags.includes(tag));
+    resetFeed();
+  }
+
+  function clearTag() {
+    activeTag = null;
+    document.getElementById('tag-bar').style.display = 'none';
+    filteredPosts = allPosts;
+    resetFeed();
+  }
+
+  function resetFeed() {
+    page = 0; loading = false; done = false;
+    document.getElementById('feed').innerHTML = '';
+    document.getElementById('end').style.display = 'none';
+    document.getElementById('empty').style.display = 'none';
+    if (filteredPosts.length === 0) {
+      document.getElementById('empty').textContent = activeTag ? 'No posts tagged "' + activeTag + '".' : 'No posts yet.';
+      document.getElementById('empty').style.display = 'block';
+      return;
+    }
+    renderPage();
+  }
+
   function renderPage() {
     if (loading || done) return;
     loading = true;
     document.getElementById('loader').classList.add('active');
-    const slice = allPosts.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    const slice = filteredPosts.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
     setTimeout(function() {
       const feed = document.getElementById('feed');
       slice.forEach(function(post, i) {
@@ -91,7 +138,7 @@
       page++;
       loading = false;
       document.getElementById('loader').classList.remove('active');
-      if (page * PAGE_SIZE >= allPosts.length) {
+      if (page * PAGE_SIZE >= filteredPosts.length) {
         done = true;
         document.getElementById('end').style.display = 'block';
       }
@@ -122,11 +169,38 @@
     if (entries[0].isIntersecting) renderPage();
   }, { rootMargin: '400px' });
 
+  function copyFeed(btn) {
+    const url = window.location.origin + '/feed.xml';
+    navigator.clipboard.writeText(url).then(function() {
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Subscribe'; }, 2000);
+    }).catch(function() {
+      // fallback: select a temporary input
+      const inp = document.createElement('input');
+      inp.value = url;
+      document.body.appendChild(inp);
+      inp.select();
+      document.execCommand('copy');
+      document.body.removeChild(inp);
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Subscribe'; }, 2000);
+    });
+  }
+
   async function init() {
+    try {
+      const cfg = await fetch('config.json?v=' + Date.now()).then(r => r.json());
+      if (cfg.siteName) {
+        document.getElementById('site-name').textContent = cfg.siteName;
+        document.title = cfg.siteName;
+      }
+    } catch(e) {}
+
     try {
       const res = await fetch('posts.json?v=' + Date.now());
       allPosts = await res.json();
       allPosts.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+      filteredPosts = allPosts;
       if (allPosts.length === 0) {
         document.getElementById('empty').style.display = 'block';
         return;
@@ -134,7 +208,6 @@
       triggerObserver.observe(document.getElementById('trigger'));
       renderPage();
     } catch(err) {
-      console.error('Failed to load posts:', err);
       document.getElementById('empty').textContent = 'Failed to load posts.';
       document.getElementById('empty').style.display = 'block';
     }
