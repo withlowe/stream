@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:media="http://search.yahoo.com/mrss/">
   <channel>
-    <title>Stream</title>
-    <description>Stream</description>
+    <title>Test Site</title>
+    <description>Test Site</description>
     <link>https://stream-ashy-tau.vercel.app</link>
     <atom:link href="https://stream-ashy-tau.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Thu, 19 Feb 2026 09:04:18 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 05 Apr 2026 09:30:28 +0100</lastBuildDate>
+        <item>
+          <title>What is this</title>
+          <description><![CDATA[<p>Just a simple post on the web. Maryland crab soup typically comes in two forms: a rich, creamy style and a brothy, vegetable-packed version. But the real pro move is to mix them together for what Marylanders often call half-and-half soup. This recipe takes the best of that approach by combining the two soups into one for something that’s creamy and substantial but still loaded with vegetables to lighten it up. It’s the best of both worlds. If the resulting soup is too thick, adjust with more crab stock as needed.</p>]]></description>
+          <pubDate>Sun, 05 Apr 2026 09:30:27 +0100</pubDate>
+          <link>https://stream-ashy-tau.vercel.app</link>
+          <guid>1775377827</guid>
+        </item>
         <item>
           <title>This is a test</title>
           <description></description>
