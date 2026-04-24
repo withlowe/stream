@@ -5,11 +5,22 @@
     <description>Test Site</description>
     <link>https://stream-ashy-tau.vercel.app</link>
     <atom:link href="https://stream-ashy-tau.vercel.app/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Tue, 21 Apr 2026 06:46:14 +0100</lastBuildDate>
+    <lastBuildDate>Fri, 24 Apr 2026 09:14:15 +0100</lastBuildDate>
+        <item>
+          <title>2026-04-24 08:14</title>
+          <description><![CDATA[<p><span style="background-color:#e0f2ff;color:#0066cc;padding:2px 8px;border-radius:4px;margin-right:4px;font-size:0.85em;">#artworks</span></p>
+<img src="https://stream-ashy-tau.vercel.app/assets/images/1777018442_0.jpg" style="max-width:100%;width:100%;height:auto;" />
+<img src="https://stream-ashy-tau.vercel.app/assets/images/1777018442_1.jpg" style="max-width:100%;width:100%;height:auto;" />]]></description>
+          <pubDate>Fri, 24 Apr 2026 09:14:14 +0100</pubDate>
+          <link>https://stream-ashy-tau.vercel.app</link>
+          <guid>1777018442</guid>
+          <enclosure url="https://stream-ashy-tau.vercel.app/assets/images/1777018442_0.jpg" type="image/jpeg" length="1861876"/>
+          <category>artworks</category>
+        </item>
         <item>
           <title>2026-04-21 05:46</title>
           <description><![CDATA[<p><span style="background-color:#e0f2ff;color:#0066cc;padding:2px 8px;border-radius:4px;margin-right:4px;font-size:0.85em;">#images</span></p>
-<img src="https://stream-ashy-tau.vercel.app/assets/images/1776750366_0.jpg" style="max-width:100%;height:auto;" />]]></description>
+<img src="https://stream-ashy-tau.vercel.app/assets/images/1776750366_0.jpg" style="max-width:100%;width:100%;height:auto;" />]]></description>
           <pubDate>Tue, 21 Apr 2026 06:46:14 +0100</pubDate>
           <link>https://stream-ashy-tau.vercel.app</link>
           <guid>1776750366</guid>
@@ -39,7 +50,7 @@
         </item>
         <item>
           <title>2026-02-19 08:28</title>
-          <description><![CDATA[<img src="https://stream-ashy-tau.vercel.app/assets/images/1771489675.jpg" style="max-width:100%;height:auto;" />]]></description>
+          <description><![CDATA[<img src="https://stream-ashy-tau.vercel.app/assets/images/1771489675.jpg" style="max-width:100%;width:100%;height:auto;" />]]></description>
           <pubDate>Thu, 19 Feb 2026 08:28:14 +0000</pubDate>
           <link>https://stream-ashy-tau.vercel.app</link>
           <guid>1771489675</guid>
@@ -48,7 +59,7 @@
         <item>
           <title>Hello World</title>
           <description><![CDATA[<p>Where a world of adventure awaits.</p>
-<img src="https://stream-ashy-tau.vercel.app/assets/images/1771488539.jpg" style="max-width:100%;height:auto;" />]]></description>
+<img src="https://stream-ashy-tau.vercel.app/assets/images/1771488539.jpg" style="max-width:100%;width:100%;height:auto;" />]]></description>
           <pubDate>Thu, 19 Feb 2026 08:09:20 +0000</pubDate>
           <link>https://stream-ashy-tau.vercel.app</link>
           <guid>1771488539</guid>
